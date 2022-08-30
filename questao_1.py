@@ -28,7 +28,7 @@ def create_empty_matrix(n, m) -> list:
     return image_matrix
 
 
-def apply_filter(image: Image, mask: list) -> list:
+def apply_filter(image: Image, mask: list, interest_pixel: tuple) -> list:
     pass
 
 
@@ -53,8 +53,21 @@ def laplacian(image: Image, mask_type: string) -> Image:
             central_pixel = laplacian_mask[1][1] * image_matrix[x][y] + laplacian_mask[2][1] * image_matrix[x+1][y] + \
                             laplacian_mask[1][0] * image_matrix[x][y-1] + laplacian_mask[0][1] * image_matrix[x-1][y] +\
                             laplacian_mask[1][2] * image_matrix[x][y+1]
-            # if central_pixel < 0
-            image.putpixel((x, y), central_pixel)
+            if central_pixel < 0:
+                central_pixel *= -1
+                if central_pixel % 2 == 0:
+                    resultado = int(central_pixel / 2)
+                    image.putpixel((y, x), resultado)
+                else:
+                    resultado = int((central_pixel - 1) / 2)
+                    image.putpixel((y, x), resultado)
+            else:
+                if central_pixel % 2 == 0:
+                    resultado = int(central_pixel / 2) + 127
+                    image.putpixel((y, x), resultado)
+                else:
+                    resultado = int((central_pixel - 1) / 2) + 127
+                    image.putpixel((y, x), resultado)
     return image
 
 
@@ -99,10 +112,10 @@ def sobel_border_detection():
 
 
 if __name__ == '__main__':
-    # with Image.open('imgs/lena_gray.bmp', 'r') as lena_gray:
-    #     laplacian(lena_gray, 'cruz')
-    #     lena_gray.show()
     with Image.open('imgs/lena_gray.bmp', 'r') as lena_gray:
-        result = unsharp_masking(lena_gray, 5, 5, 3)
-        result.save('results/lena_gray.bmp')
+        result = laplacian(lena_gray, 'cruz')
         result.show()
+    # with Image.open('imgs/lena_gray.bmp', 'r') as lena_gray:
+    #     result = unsharp_masking(lena_gray, 5, 5, 3)
+    #     result.save('results/lena_gray.bmp')
+    #     result.show()
