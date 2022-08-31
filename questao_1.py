@@ -32,8 +32,9 @@ def apply_filter(image: Image, mask: list, interest_pixel: tuple) -> list:
     pass
 
 
-def laplacian(image: Image, mask_type: string) -> Image:
-    image = image.copy()
+def laplacian(image: Image, mask_type: string, modify: bool = False) -> Image:
+    if not modify:
+        image = image.copy()
     laplacian_mask = []
     if mask_type == 'cruz':
         for i in range(3):
@@ -43,36 +44,42 @@ def laplacian(image: Image, mask_type: string) -> Image:
     elif mask_type == 'diagonal':
         for i in range(3):
             laplacian_mask.append([0] * 3)
-        laplacian_mask[0][1], laplacian_mask[1][0], laplacian_mask[2][1], laplacian_mask[1][2] = [1, 1, 1, 1]
-        laplacian_mask[0][0], laplacian_mask[0][2], laplacian_mask[2][0], laplacian_mask[2][2] = [1, 1, 1, 1]
-        laplacian_mask[1][1] = -8
+        for i in range(3):
+            for j in range(3):
+                if j == 0 and i == 0:
+                    laplacian_mask[i][j] = -8
+                else:
+                    laplacian_mask[i][j] = 1
 
     image_matrix = image_to_matrix(image)
-    for y in range(1, image.height-1):
-        for x in range(1, image.width-1):
-            central_pixel = laplacian_mask[1][1] * image_matrix[x][y] + laplacian_mask[2][1] * image_matrix[x+1][y] + \
-                            laplacian_mask[1][0] * image_matrix[x][y-1] + laplacian_mask[0][1] * image_matrix[x-1][y] +\
-                            laplacian_mask[1][2] * image_matrix[x][y+1]
-            if central_pixel < 0:
-                central_pixel *= -1
-                if central_pixel % 2 == 0:
-                    resultado = int(central_pixel / 2)
-                    image.putpixel((y, x), resultado)
-                else:
-                    resultado = int((central_pixel - 1) / 2)
-                    image.putpixel((y, x), resultado)
-            else:
-                if central_pixel % 2 == 0:
-                    resultado = int(central_pixel / 2) + 127
-                    image.putpixel((y, x), resultado)
-                else:
-                    resultado = int((central_pixel - 1) / 2) + 127
-                    image.putpixel((y, x), resultado)
+    for y in range(1, image.height - 1):
+        for x in range(1, image.width - 1):
+            central_pixel = 0
+            for y1 in range(-1, 2):
+                for x1 in range(-1, 2):
+                    central_pixel += laplacian_mask[x1][y1] * image_matrix[x-x1][y-y1]
+            image.putpixel((y, x), central_pixel)
+            # if central_pixel < 0:
+            #     central_pixel *= -1
+            #     if central_pixel % 2 == 0:
+            #         resultado = int(central_pixel / 2)
+            #         image.putpixel((y, x), resultado)
+            #     else:
+            #         resultado = int((central_pixel - 1) / 2)
+            #         image.putpixel((y, x), resultado)
+            # else:
+            #     if central_pixel % 2 == 0:
+            #         resultado = int(central_pixel / 2) + 127
+            #         image.putpixel((y, x), resultado)
+            #     else:
+            #         resultado = int((central_pixel - 1) / 2) + 127
+            #         image.putpixel((y, x), resultado)
     return image
 
 
-def unsharp_masking(image: Image, n: int, m: int, k: float) -> Image:
-    image = image.copy()
+def unsharp_masking(image: Image, n: int, m: int, k: float, modify: bool = False) -> Image:
+    if not modify:
+        image = image.copy()
     original_image_matrix = image_to_matrix(image)
     blurred_image_matrix = create_empty_matrix(image.height, image.width)
     n1 = (n/2).__floor__()
@@ -88,14 +95,10 @@ def unsharp_masking(image: Image, n: int, m: int, k: float) -> Image:
                         pass
             blurred_image_matrix[y][x] = int(central_pixel/(m*n))
 
-    result = create_empty_matrix(image.height, image.height)
     for y in range(image.height):
         for x in range(image.width):
-            result[x][y] = blurred_image_matrix[x][y] - original_image_matrix[x][y]
-            # image.putpixel((x, y), original_image_matrix[x][y] + k * (blurred_image_matrix[x][y] - original_image_matrix[x][y]))
-    image.show()
-    matrix_to_image(blurred_image_matrix, image).show()
-    matrix_to_image(result, image).show()
+            image.putpixel((x, y), original_image_matrix[y][x] + int(k * original_image_matrix[y][x] -
+                                                                     blurred_image_matrix[x][y]))
     return image
 
 
@@ -112,10 +115,11 @@ def sobel_border_detection():
 
 
 if __name__ == '__main__':
-    with Image.open('imgs/lena_gray.bmp', 'r') as lena_gray:
-        result = laplacian(lena_gray, 'cruz')
-        result.show()
     # with Image.open('imgs/lena_gray.bmp', 'r') as lena_gray:
-    #     result = unsharp_masking(lena_gray, 5, 5, 3)
-    #     result.save('results/lena_gray.bmp')
-    #     result.show()
+        # result = laplacian(lena_gray, 'diagonal')
+        # result.show()
+        # result.save('results/lena_diag.bmp')
+    with Image.open('imgs/lena_gray.bmp', 'r') as lena_gray:
+        result = unsharp_masking(lena_gray, 5, 5, 1)
+        result.save('results/lena_gray_sharpen.bmp')
+        result.show()
