@@ -38,8 +38,6 @@ def create_empty_mask(m: int, n: int, default_value: int = 1) -> list:
 
 
 def arithmetic_mean_filter(image: Image, m: int, n: int, modify: bool = False) -> Image:
-    if not modify:
-        image = image.copy()
     original_image_matrix = image_to_matrix(image)
     blurred_image_matrix = create_empty_matrix(image.height, image.width)
     m1 = (m/2).__floor__()
@@ -53,6 +51,8 @@ def arithmetic_mean_filter(image: Image, m: int, n: int, modify: bool = False) -
                         central_pixel += original_image_matrix[line+mask_line][column+mask_column]
                     except IndexError:
                         pass
+            if modify:
+                image.putpixel((line, column), int(central_pixel/(m*n)))
             blurred_image_matrix[line][column] = int(central_pixel/(m*n))
     return matrix_to_image(blurred_image_matrix, image)
 
@@ -147,35 +147,49 @@ def high_boost(image: Image, m: int, n: int, k: float, modify: bool = False) -> 
     return image
 
 
-def prewitt_border_detection(image: Image) -> Image:
-    prewitt_mask = [[-1, -1, -1], [0, 0, 0], [1, 1, 1]]
+def prewitt_border_detection(image: Image, horizontal: bool = True) -> Image:
+    if horizontal:
+        prewitt_mask = [[-1, -1, -1], [0, 0, 0], [1, 1, 1]]
+    else:
+        prewitt_mask = [[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]]
     prewitt_image = apply_linear_filter(image, prewitt_mask)
     return matrix_to_image(prewitt_image, image)
 
 
 
-def sobel_border_detection(image: Image):
-    sobel_mask = [[-1, -2, -1], [0, 0, 0], [1, 2, 1]]
+def sobel_border_detection(image: Image, horizontal: bool = True):
+    if horizontal:
+        sobel_mask = [[-1, -2, -1], [0, 0, 0], [1, 2, 1]]
+    else:
+        sobel_mask = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]
     sobel_image = apply_linear_filter(image, sobel_mask)
     return matrix_to_image(sobel_image, image)
 
 
 if __name__ == '__main__':
     with Image.open('imgs/lena_gray.bmp', 'r') as lena_gray:
-        result, laplacian_image = laplacian_filter(lena_gray, 4, adjusted_laplacian=True)
-        laplacian_image.show()
-        laplacian_image.save('imgs/lena_clack_white_laplacian.bmp')
-        result.show()
+        result, laplacian_image = laplacian_filter(lena_gray, -8, adjusted_laplacian=False)
+        # laplacian_image.show()
+        laplacian_image.save('results/lena_laplacian_result.bmp')
+        # result.show()
         result.save('results/lena_laplacian.bmp')
 
-        # result = high_boost(lena_gray, 5, 5, 5)
-        # result.save('results/lena_gray_unsharp.bmp')
+        result = high_boost(lena_gray, 3, 3, 10)
+        result.save('results/lena_gray_high_boost.bmp')
         # result.show()
 
-        # result = prewitt_border_detection(lena_gray)
-        # result.save('results/lena_prewitt.bmp')
-        # # result.show()
+        result = unsharp_masking(lena_gray, 3, 5)
+        result.save('results/lena_gray_unsharp.bmp')
+        # result.show()
 
-        # result = sobel_border_detection(lena_gray)
-        # result.save('results/lena_sobel.bmp')
+        # result = prewitt_border_detection(lena_gray, horizontal=True)
+        # result.save('results/lena_prewitt_horizontal.bmp')
+        # result = prewitt_border_detection(lena_gray, horizontal=False)
+        # result.save('results/lena_prewitt_vertical.bmp')
+        # result.show()
+
+        # result = sobel_border_detection(lena_gray, horizontal=True)
+        # result.save('results/lena_sobel_horizontal.bmp')
+        # result = sobel_border_detection(lena_gray, horizontal=False)
+        # result.save('results/lena_sobel_vertical.bmp')
         # result.show()
