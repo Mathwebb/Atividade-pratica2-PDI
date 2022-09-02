@@ -1,4 +1,6 @@
+from cmath import inf
 import string
+from traceback import print_tb
 from PIL import Image
 
 
@@ -72,6 +74,10 @@ def apply_linear_filter(image: Image, mask: list) -> list:
                                          mask[mask_line+m1][mask_column+n1]
                     except IndexError:
                         pass
+            if central_pixel > 255:
+                central_pixel = 255
+            if central_pixel < -255:
+                central_pixel = -255
             filtered_image_matrix[line][column] = central_pixel
     return filtered_image_matrix
 
@@ -87,6 +93,8 @@ def laplacian_filter(image: Image, center_value: int = -8, modify: bool = False,
         laplacian_mask = [[0, 1, 0], [1, -4, 1], [0, 1, 0]]
     elif center_value == 4:
         laplacian_mask = [[0, -1, 0], [-1, 4, -1], [0, -1, 0]]
+    else:
+        return None
 
     laplacian_image = image.copy()
     laplacian_image_matrix = apply_linear_filter(image, laplacian_mask)
@@ -168,17 +176,17 @@ def sobel_border_detection(image: Image, horizontal: bool = True):
 
 if __name__ == '__main__':
     with Image.open('imgs/lena_gray.bmp', 'r') as lena_gray:
-        result, laplacian_image = laplacian_filter(lena_gray, -8, adjusted_laplacian=False)
+        result, laplacian_image = laplacian_filter(lena_gray, -4, adjusted_laplacian=True)
         # laplacian_image.show()
         laplacian_image.save('results/lena_laplacian_result.bmp')
         # result.show()
         result.save('results/lena_laplacian.bmp')
 
-        result = high_boost(lena_gray, 3, 3, 10)
+        result = high_boost(lena_gray, 3, 3, 5)
         result.save('results/lena_gray_high_boost.bmp')
         # result.show()
 
-        result = unsharp_masking(lena_gray, 3, 5)
+        result = unsharp_masking(lena_gray, 3, 3)
         result.save('results/lena_gray_unsharp.bmp')
         # result.show()
 
