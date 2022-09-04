@@ -40,8 +40,9 @@ def create_empty_mask(m: int, n: int, default_value: int = 1) -> list:
 
 
 def arithmetic_mean_filter(image: Image, m: int, n: int, modify: bool = False) -> Image:
+    if not modify:
+        image = image.copy()
     original_image_matrix = image_to_matrix(image)
-    blurred_image_matrix = create_empty_matrix(image.height, image.width)
     m1 = (m/2).__floor__()
     n1 = (n/2).__floor__()
     for line in range(image.height):
@@ -53,11 +54,49 @@ def arithmetic_mean_filter(image: Image, m: int, n: int, modify: bool = False) -
                         central_pixel += original_image_matrix[line+mask_line][column+mask_column]
                     except IndexError:
                         pass
-            if modify:
-                image.putpixel((line, column), int(central_pixel/(m*n)))
-            blurred_image_matrix[line][column] = int(central_pixel/(m*n))
-    return matrix_to_image(blurred_image_matrix, image)
+            image.putpixel((line, column), central_pixel//(m*n))
+    return image
 
+def weighted_arithmetic_mean_filter(image: Image, mask: list, modify: bool = False) -> Image:
+    if not modify:
+        image = image.copy()
+    original_image_matrix = image_to_matrix(image)
+    m1 = (len(mask)/2).__floor__()
+    n1 = (len(mask[0])/2).__floor__()
+    sum_mask = 0
+    for line in range(len(mask)):
+        for column in range(len(mask[line])):
+            sum_mask += mask[line][column]
+    for line in range(image.height):
+        for column in range(image.width):
+            central_pixel = 0
+            for mask_line in range(-m1, m1+1):
+                for mask_column in range(-n1, n1+1):
+                    try:
+                        central_pixel += original_image_matrix[line+mask_line][column+mask_column]
+                    except IndexError:
+                        pass
+            image.putpixel((line, column), central_pixel//sum_mask)
+    return image
+
+
+def median_filter(image: Image, m: int, n: int, modify: bool = False) -> Image:
+    if not modify:
+        image = image.copy()
+    original_image_matrix = image_to_matrix(image)
+    m1 = (m/2).__floor__()
+    n1 = (n/2).__floor__()
+    for line in range(m1, image.height-m1):
+        for column in range(n1, image.width-n1):
+            image_pixels = []
+            for line_mask in range(-m1, m1+1):
+                for column_mask in range(-n1, n1+1):
+                    image_pixels.append(original_image_matrix[line+line_mask][column+column_mask])
+            image_pixels.sort()
+            central_pixel_index = (len(image_pixels)/2).__ceil__()
+            image.putpixel((line, column), image_pixels[central_pixel_index])
+    return image
+    
 
 def apply_linear_filter(image: Image, mask: list) -> list:
     original_image_matrix = image_to_matrix(image)
@@ -107,14 +146,14 @@ def laplacian_filter(image: Image, center_value: int = -8, modify: bool = False,
                 elif pixel < 0:
                     pixel *= -1
                     if pixel % 2 == 0:
-                        laplacian_image.putpixel((line, column), 127 - int(pixel / 2))
+                        laplacian_image.putpixel((line, column), 127 - pixel // 2)
                     else:
-                        laplacian_image.putpixel((line, column), 127 - int((pixel - 1) / 2))
+                        laplacian_image.putpixel((line, column), 127 - (pixel - 1) // 2)
                 else:
                     if pixel % 2 == 0:
-                        laplacian_image.putpixel((line, column), int(pixel / 2) + 127)
+                        laplacian_image.putpixel((line, column), pixel // 2 + 127)
                     else:
-                        laplacian_image.putpixel((line, column), int((pixel - 1) / 2) + 127)
+                        laplacian_image.putpixel((line, column), (pixel - 1) // 2 + 127)
     else:
         laplacian_image = matrix_to_image(laplacian_image_matrix, image)
     for line in range(image.height):
@@ -177,27 +216,38 @@ def sobel_border_detection(image: Image, horizontal: bool = True):
 if __name__ == '__main__':
     with Image.open('imgs/lena_gray.bmp', 'r') as lena_gray:
         result, laplacian_image = laplacian_filter(lena_gray, -4, adjusted_laplacian=True)
-        # laplacian_image.show()
-        laplacian_image.save('results/lena_laplacian_result.bmp')
-        # result.show()
-        result.save('results/lena_laplacian.bmp')
+        laplacian_image.save('results/questao_1/lena_laplacian_result.bmp')
+        result.save('results/questao_1/lena_laplacian.bmp')
 
         result = high_boost(lena_gray, 3, 3, 5)
-        result.save('results/lena_gray_high_boost.bmp')
-        # result.show()
+        result.save('results/questao_1/lena_gray_high_boost.bmp')
 
         result = unsharp_masking(lena_gray, 3, 3)
-        result.save('results/lena_gray_unsharp.bmp')
-        # result.show()
+        result.save('results/questao_1/lena_gray_unsharp.bmp')
 
-        # result = prewitt_border_detection(lena_gray, horizontal=True)
-        # result.save('results/lena_prewitt_horizontal.bmp')
-        # result = prewitt_border_detection(lena_gray, horizontal=False)
-        # result.save('results/lena_prewitt_vertical.bmp')
-        # result.show()
+        result = prewitt_border_detection(lena_gray, horizontal=True)
+        result.save('results/questao_1/lena_prewitt_horizontal.bmp')
+        result = prewitt_border_detection(lena_gray, horizontal=False)
+        result.save('results/questao_1/lena_prewitt_vertical.bmp')
 
-        # result = sobel_border_detection(lena_gray, horizontal=True)
-        # result.save('results/lena_sobel_horizontal.bmp')
-        # result = sobel_border_detection(lena_gray, horizontal=False)
-        # result.save('results/lena_sobel_vertical.bmp')
-        # result.show()
+        result = sobel_border_detection(lena_gray, horizontal=True)
+        result.save('results/questao_1/lena_sobel_horizontal.bmp')
+        result = sobel_border_detection(lena_gray, horizontal=False)
+        result.save('results/questao_1/lena_sobel_vertical.bmp')
+
+    # with Image.open('imgs/lena_ruido.bmp', 'r') as lena_gray:
+    #     result = weighted_arithmetic_mean_filter(lena_gray, [[0, 1, 0], [1, 1, 1], [0, 1, 0]])
+    #     result.save('results/questao_2/lena_gray_cruz.bmp')
+
+    #     result = arithmetic_mean_filter(lena_gray, 3, 3)
+    #     result.save('results/questao_2/lena_gray_aritmetica_3x3.bmp')
+
+    #     result = weighted_arithmetic_mean_filter(lena_gray, [[1, 3, 1], [3, 16, 3], [1, 3, 1]])
+    #     result.save('results/questao_2/lena_gray_ponderada_16_no_meio.bmp')
+
+    #     result = weighted_arithmetic_mean_filter(lena_gray, [[0, 1, 0], [1, 4, 1], [0, 1, 0]])
+    #     result.save('results/questao_2/lena_gray_ponderada_4_no_meio.bmp')
+
+    #     result = median_filter(lena_gray, 5, 5)
+    #     result.save('results/questao_2/lena_gray_mediana.bmp')
+
