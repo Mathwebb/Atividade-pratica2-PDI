@@ -1,5 +1,7 @@
 from ctypes import resize
+from math import floor
 from PIL import Image
+from spatial_filtering import *
 
 
 def tresholding(image: Image, treshold: int, modify: bool = False) -> Image:
@@ -115,38 +117,81 @@ def complement(image: Image, modify: bool = False) -> Image:
     return image
 
 
-def dilation(image: Image, struc_elem: list, struc_elem_center: tuple) -> Image:
-    pass
+def dilation(image: Image, struc_elem: list, struc_elem_center: tuple, modify: bool = False) -> Image:
+    if not modify:
+        image = image.copy()
+    m1 = struc_elem_center[0]
+    m2 = len(struc_elem)-struc_elem_center[0]-1
+    n1 = struc_elem_center[1]
+    n2 = len(struc_elem[0])-struc_elem_center[1]-1
+    original_image_matrix = image_to_matrix(image)
+    for line in range(m1, image.width-m2):
+        for column in range(n1, image.height-n2):
+            if original_image_matrix[line][column] == 255:
+                for line_elem in range(-m1, m2+1):
+                    for column_elem in range(-n1, n2+1):
+                        if struc_elem[m1+line_elem][n1+column_elem] == 1:
+                            image.putpixel((line+line_elem, column+column_elem), 255)
+    return image
 
 
-def erosion(image: Image, struc_elem: list, struc_elem_center: tuple) -> Image:
-    pass
+def erosion(image: Image, struc_elem: list, struc_elem_center: tuple, modify: bool = False) -> Image:
+    if not modify:
+        image = image.copy()
+    m1 = struc_elem_center[0]
+    m2 = len(struc_elem)-struc_elem_center[0]-1
+    n1 = struc_elem_center[1]
+    n2 = len(struc_elem[0])-struc_elem_center[1]-1
+    original_image_matrix = image_to_matrix(image)
+    for line in range(m1, image.width-m2):
+        for column in range(n1, image.height-n2):
+            struc_elem_hit = True
+            if original_image_matrix[line][column] == 255:
+                for line_elem in range(-m1, m2+1):
+                    for column_elem in range(-n1, n2+1):
+                        print(original_image_matrix[line+line_elem][column+column_elem], struc_elem[m1+line_elem][n1+column_elem])
+                        if original_image_matrix[line+line_elem][column+column_elem] == 0 and struc_elem[m1+line_elem][n1+column_elem] == 1:
+                            struc_elem_hit = False
+                            break
+                    if not struc_elem_hit:
+                        break
+                if not struc_elem_hit:
+                        image.putpixel((line, column), 0)
+    return image
 
 
-def opening(image: Image, struc_elem: list, struc_elem_center: tuple) -> Image:
-    pass
+def opening(image: Image, struc_elem: list, struc_elem_center: tuple, modify: bool = False) -> Image:
+    if not modify:
+        image = image.copy()
+    image = erosion(image, struc_elem, struc_elem_center, True)
+    image = dilation(image, struc_elem, struc_elem_center, True)
+    return image
 
 
-def closing(image: Image, struc_elem: list, struc_elem_center: tuple) -> Image:
-    pass
+def closing(image: Image, struc_elem: list, struc_elem_center: tuple, modify: bool = False) -> Image:
+    if not modify:
+        image = image.copy()
+    image = dilation(image, struc_elem, struc_elem_center, True)
+    image = erosion(image, struc_elem, struc_elem_center, True)
+    return image
 
 
 if __name__ == "__main__":
-    with Image.open("imgs/lena_gray.bmp", "r") as image1:
-        image1 = tresholding(image1, 128)
-        image1.save("results/questao_3/lena_gray_binary.bmp")
-        with Image.open("imgs/lena_ruido.bmp", "r") as image2:
-            image2 = tresholding(image2, 128)
-            image2.save("results/questao_3/lena_ruido_binary.bmp")
+    # with Image.open("imgs/lena_gray.bmp", "r") as image1:
+    #     image1 = tresholding(image1, 128)
+    #     image1.save("results/questao_3/lena_gray_binary.bmp")
+    #     with Image.open("imgs/lena_ruido.bmp", "r") as image2:
+    #         image2 = tresholding(image2, 128)
+    #         image2.save("results/questao_3/lena_ruido_binary.bmp")
 
-            result = union(image1, image2)
-            result.save("results/questao_3/lena_uniao.bmp")
+    #         result = union(image1, image2)
+    #         result.save("results/questao_3/lena_uniao.bmp")
             
-            result = intersection(image1, image2)
-            result.save("results/questao_3/lena_intersecao.bmp")
+    #         result = intersection(image1, image2)
+    #         result.save("results/questao_3/lena_intersecao.bmp")
             
-            result = difference(image1, image2)
-            result.save("results/questao_3/lena_diferenca.bmp")
+    #         result = difference(image1, image2)
+    #         result.save("results/questao_3/lena_diferenca.bmp")
     
     with Image.open("imgs/qPreto.png") as image1:
         image1 = image1.convert('L')
@@ -155,15 +200,32 @@ if __name__ == "__main__":
             image2 = image2.convert('L')
             image2 = complement(image2)
 
-            result = union(image1, image2)
-            result.save("results/questao_3/qPreto_tPreto_uniao.png")
-            result.show()
+            # result = union(image1, image2)
+            # result.save("results/questao_3/qPreto_tPreto_uniao.png")
+            # result.show()
             
-            result = intersection(image1, image2)
-            result.save("results/questao_3/qPreto_tPreto_intersecao.png")
-            result.show()
+            # result = intersection(image1, image2)
+            # result.save("results/questao_3/qPreto_tPreto_intersecao.png")
+            # result.show()
             
-            result = difference(image1, image2)
-            result.save("results/questao_3/qPreto_tPreto_diferenca.png")
+            # result = difference(image1, image2)
+            # result.save("results/questao_3/qPreto_tPreto_diferenca.png")
+            # result.show()
+
+            mask = []
+            for line in range(31):
+                mask.append([])
+                for column in range(31):
+                    mask[line].append(1)
+
+            
+            result = dilation(image1, [[0, 1, 0], [1, 1, 1], [0, 1, 0]], (1, 1))
+            result = difference(result, image1)
+            result.save("results/questao_4/qPreto_dilatacao.png")
+            result.show()
+
+            result = erosion(image1, [[0, 1, 0], [1, 1, 1], [0, 1, 0]], (1, 1))
+            result = difference(image1, result)
+            result.save("results/questao_4/qPreto_erosao.png")
             result.show()
 
