@@ -1,6 +1,3 @@
-from cmath import inf
-import string
-from traceback import print_tb
 from PIL import Image
 
 
