@@ -83,29 +83,61 @@ def intersection(image1: Image, image2: Image) -> Image:
 
 
 def difference(image1: Image, image2: Image) -> Image:
-    if image1.width != image2.width and image1.height != image2.height:
-        if image1.width < image2.width:
-            image2 = image2.resize(image1.size)
-            image2 = tresholding(image2, 128)
-            new_width = image1.width
-            new_height = image1.height
-        else:
-            image1 = image1.resize(image2.size)
-            image1 = tresholding(image1, 128)
-            new_width = image2.width
-            new_height = image2.height
-            
-        result_image = Image.new('L', (new_width, new_height), (255,))
-        for line in range(new_width):
-            for column in range(new_height):
+    if image1.mode == 'L':
+        if image1.width != image2.width and image1.height != image2.height:
+            if image1.width < image2.width:
+                image2 = image2.resize(image1.size)
+                image2 = tresholding(image2, 128)
+                new_width = image1.width
+                new_height = image1.height
+            else:
+                image1 = image1.resize(image2.size)
+                image1 = tresholding(image1, 128)
+                new_width = image2.width
+                new_height = image2.height
+                
+            result_image = Image.new('L', (new_width, new_height), (255,))
+            for line in range(new_width):
+                for column in range(new_height):
+                    result_image.putpixel((line, column), image1.getpixel((line, column)) - image2.getpixel((line, column)))
+            return result_image
+        
+        result_image = Image.new('L', (image1.width, image1.height), (255,))
+        for line in range(image1.width):
+            for column in range(image1.height):
                 result_image.putpixel((line, column), image1.getpixel((line, column)) - image2.getpixel((line, column)))
         return result_image
-    
-    result_image = Image.new('L', (image1.width, image1.height), (255,))
-    for line in range(image1.width):
-        for column in range(image1.height):
-            result_image.putpixel((line, column), image1.getpixel((line, column)) - image2.getpixel((line, column)))
-    return result_image
+    else:
+        # if image1.width != image2.width and image1.height != image2.height:
+        #     if image1.width < image2.width:
+        #         image2 = image2.resize(image1.size)
+        #         image2 = tresholding(image2, 128)
+        #         new_width = image1.width
+        #         new_height = image1.height
+        #     else:
+        #         image1 = image1.resize(image2.size)
+        #         image1 = tresholding(image1, 128)
+        #         new_width = image2.width
+        #         new_height = image2.height
+                
+        #     result_image = Image.new(image1.mode, (new_width, new_height), (255,))
+        #     image2.convert(image1.mode)
+        #     result_image_channels = ()
+        #     for line in range(new_width):
+        #         for column in range(new_height):
+        #             [result_image_channels.append(image1.getpixel((line, column))[i] - image2.getpixel((line, column))[i]) for i in range(len(image1.getpixel((line, column))))]
+                    
+        #     return result_image
+        
+        # result_image = Image.new(image1.mode, (image1.width, image1.height), (255,))
+        # image2.convert(image1.mode)
+        # result_image_channels = ()
+        # for line in range(image1.width):
+        #     for column in range(image1.height):
+        #         [result_image_channels.append(image1.getpixel((line, column))[i] - image2.getpixel((line, column))[i]) for i in range(len(image1.getpixel((line, column))))]
+        # return result_image
+        pass
+
 
 
 def complement(image: Image, modify: bool = False) -> Image:

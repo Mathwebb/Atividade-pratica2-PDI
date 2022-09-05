@@ -4,9 +4,9 @@ from math import floor
 
 def image_to_matrix(image: Image) -> list:
     image_matrix = []
-    for line in range(image.width):
+    for line in range(image.height):
         image_matrix.append([image.getpixel((0, line))])
-        for column in range(1, image.height):
+        for column in range(1, image.width):
             image_matrix[line].append(image.getpixel((line, column)))
     return image_matrix
 
@@ -71,7 +71,7 @@ def weighted_arithmetic_mean_filter(image: Image, mask: list, modify: bool = Fal
             for mask_line in range(-m1, m1+1):
                 for mask_column in range(-n1, n1+1):
                     try:
-                        central_pixel += original_image_matrix[line+mask_line][column+mask_column]
+                        central_pixel += original_image_matrix[line+mask_line][column+mask_column] * mask[mask_line+m1][mask_column+n1]
                     except IndexError:
                         pass
             image.putpixel((line, column), central_pixel//sum_mask)
