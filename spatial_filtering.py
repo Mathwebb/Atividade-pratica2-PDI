@@ -4,9 +4,9 @@ from math import floor
 
 def image_to_matrix(image: Image) -> list:
     image_matrix = []
-    for line in range(image.height):
-        image_matrix.append([image.getpixel((0, line))])
-        for column in range(1, image.width):
+    for line in range(image.width):
+        image_matrix.append([image.getpixel((line, 0))])
+        for column in range(1, image.height):
             image_matrix[line].append(image.getpixel((line, column)))
     return image_matrix
 

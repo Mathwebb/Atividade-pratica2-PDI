@@ -181,7 +181,6 @@ def erosion(image: Image, struc_elem: list, struc_elem_center: tuple, modify: bo
             if original_image_matrix[line][column] == 255:
                 for line_elem in range(-m1, m2+1):
                     for column_elem in range(-n1, n2+1):
-                        print(original_image_matrix[line+line_elem][column+column_elem], struc_elem[m1+line_elem][n1+column_elem])
                         if original_image_matrix[line+line_elem][column+column_elem] == 0 and struc_elem[m1+line_elem][n1+column_elem] == 1:
                             struc_elem_hit = False
                             break
@@ -225,39 +224,19 @@ if __name__ == "__main__":
     #         result = difference(image1, image2)
     #         result.save("results/questao_3/lena_diferenca.bmp")
     
-    with Image.open("imgs/qPreto.png") as image1:
+    with Image.open("imgs/imagem_abertura.png") as image1:
         image1 = image1.convert('L')
         image1 = complement(image1)
-        with Image.open("imgs/tPreto.png") as image2:
-            image2 = image2.convert('L')
-            image2 = complement(image2)
 
-            # result = union(image1, image2)
-            # result.save("results/questao_3/qPreto_tPreto_uniao.png")
-            # result.show()
-            
-            # result = intersection(image1, image2)
-            # result.save("results/questao_3/qPreto_tPreto_intersecao.png")
-            # result.show()
-            
-            # result = difference(image1, image2)
-            # result.save("results/questao_3/qPreto_tPreto_diferenca.png")
-            # result.show()
+        result = opening(image1, [[1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1]], (1, 1))
+        result = complement(result)
+        result.save("results/questao_3/qPreto_tPreto_abertura.png")
+    
+    with Image.open("imgs/imagem_fechamento.png") as image1:
+        image1 = image1.convert('L')
+        image1 = complement(image1)
 
-            mask = []
-            for line in range(31):
-                mask.append([])
-                for column in range(31):
-                    mask[line].append(1)
-
-            
-            result = dilation(image1, [[0, 1, 0], [1, 1, 1], [0, 1, 0]], (1, 1))
-            result = difference(result, image1)
-            result.save("results/questao_4/qPreto_dilatacao.png")
-            result.show()
-
-            result = erosion(image1, [[0, 1, 0], [1, 1, 1], [0, 1, 0]], (1, 1))
-            result = difference(image1, result)
-            result.save("results/questao_4/qPreto_erosao.png")
-            result.show()
+        result = closing(image1, [[1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1]], (1, 1))
+        result = complement(result)
+        result.save("results/questao_3/qPreto_tPreto_fechamento.png")
 
