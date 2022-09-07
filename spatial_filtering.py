@@ -28,28 +28,19 @@ def create_empty_matrix(m, n) -> list:
     return image_matrix
 
 
-def create_empty_mask(m: int, n: int, default_value: int = 1) -> list:
-    mask = []
-    for line in range(m):
-        mask.append([])
-        for column in range(n):
-            mask[line].append(default_value)
-    return mask
-
-
 def arithmetic_mean_filter(image: Image, m: int, n: int, modify: bool = False) -> Image:
     if not modify:
         image = image.copy()
-    original_image_matrix = image_to_matrix(image)
+    original_image_matrix = image.load()
     m1 = floor(m/2)
     n1 = floor(n/2)
-    for line in range(image.height):
-        for column in range(image.width):
+    for line in range(image.width):
+        for column in range(image.height):
             central_pixel = 0
             for mask_line in range(-m1, m1+1):
                 for mask_column in range(-n1, n1+1):
                     try:
-                        central_pixel += original_image_matrix[line+mask_line][column+mask_column]
+                        central_pixel += original_image_matrix[line+mask_line, column+mask_column]
                     except IndexError:
                         pass
             image.putpixel((line, column), central_pixel//(m*n))
@@ -65,8 +56,8 @@ def weighted_arithmetic_mean_filter(image: Image, mask: list, modify: bool = Fal
     for line in range(len(mask)):
         for column in range(len(mask[line])):
             sum_mask += mask[line][column]
-    for line in range(image.height):
-        for column in range(image.width):
+    for line in range(image.width):
+        for column in range(image.height):
             central_pixel = 0
             for mask_line in range(-m1, m1+1):
                 for mask_column in range(-n1, n1+1):
@@ -84,8 +75,8 @@ def median_filter(image: Image, m: int, n: int, modify: bool = False) -> Image:
     original_image_matrix = image_to_matrix(image)
     m1 = floor(m/2)
     n1 = floor(n/2)
-    for line in range(m1, image.height-m1):
-        for column in range(n1, image.width-n1):
+    for line in range(m1, image.width-m1):
+        for column in range(n1, image.height-n1):
             image_pixels = []
             for line_mask in range(-m1, m1+1):
                 for column_mask in range(-n1, n1+1):
@@ -98,11 +89,11 @@ def median_filter(image: Image, m: int, n: int, modify: bool = False) -> Image:
 
 def apply_linear_filter(image: Image, mask: list) -> list:
     original_image_matrix = image_to_matrix(image)
-    filtered_image_matrix = create_empty_matrix(image.height, image.width)
+    filtered_image_matrix = create_empty_matrix(image.width, image.height)
     m1 = floor(len(mask)/2)
     n1 = floor(len(mask[0])/2)
-    for line in range(image.height):
-        for column in range(image.width):
+    for line in range(image.width):
+        for column in range(image.height):
             central_pixel = 0
             for mask_line in range(-m1, m1+1):
                 for mask_column in range(-n1, n1+1):
@@ -154,8 +145,8 @@ def laplacian_filter(image: Image, center_value: int = -8, modify: bool = False,
                         laplacian_image.putpixel((line, column), (pixel - 1) // 2 + 127)
     else:
         laplacian_image = matrix_to_image(laplacian_image_matrix, image)
-    for line in range(image.height):
-        for column in range(image.width):
+    for line in range(image.width):
+        for column in range(image.height):
             if center_value < 0:
                 image.putpixel((line, column), image.getpixel((line, column)) - laplacian_image_matrix[line][column])
             else:
@@ -171,8 +162,8 @@ def unsharp_masking(image: Image, n: int, m: int, modify: bool = False) -> Image
     blurred_image = arithmetic_mean_filter(image, n, m)
     blurred_image_matrix = image_to_matrix(blurred_image)
 
-    for line in range(image.height):
-        for column in range(image.width):
+    for line in range(image.width):
+        for column in range(image.height):
             image.putpixel((line, column), original_image_matrix[line][column] + 
             (original_image_matrix[line][column] - blurred_image_matrix[line][column]))
     return image
@@ -185,8 +176,8 @@ def high_boost(image: Image, m: int, n: int, k: float, modify: bool = False) -> 
     blurred_image = arithmetic_mean_filter(image, n, m)
     blurred_image_matrix = image_to_matrix(blurred_image)
 
-    for line in range(image.height):
-        for column in range(image.width):
+    for line in range(image.width):
+        for column in range(image.height):
             image.putpixel((line, column), original_image_matrix[line][column] + int(k * 
             (original_image_matrix[line][column] - blurred_image_matrix[line][column])))
     return image
@@ -213,6 +204,8 @@ def sobel_border_detection(image: Image, horizontal: bool = True):
 
 if __name__ == '__main__':
     with Image.open('imgs/lena_gray.bmp', 'r') as lena_gray:
+        result = arithmetic_mean_filter(lena_gray, 3, 3)
+        result.show()
         result, laplacian_image = laplacian_filter(lena_gray, -4, adjusted_laplacian=True)
         laplacian_image.save('results/questao_1/lena_laplacian_result.bmp')
         result.save('results/questao_1/lena_laplacian.bmp')
