@@ -1,5 +1,6 @@
 from PIL import Image
 from spatial_filtering import *
+from diverse_operators import *
 
 
 def tresholding(image: Image, treshold: int, modify: bool = False) -> Image:
@@ -220,7 +221,7 @@ def erosion(image: Image, struc_elem: list, struc_elem_center: tuple, modify: bo
                 for line_elem in range(-m1, m2+1):
                     for column_elem in range(-n1, n2+1):
                         try:
-                            if original_image_matrix[line+line_elem][column+column_elem] == 0 and struc_elem[m1+line_elem][n1+column_elem] == 1:
+                            if not (original_image_matrix[line+line_elem][column+column_elem] == 255 and struc_elem[m1+line_elem][n1+column_elem] == 1):
                                 struc_elem_hit = False
                                 break
                         except IndexError:
@@ -232,7 +233,7 @@ def erosion(image: Image, struc_elem: list, struc_elem_center: tuple, modify: bo
     return image
 
 
-def geodesic_dilation(marker: Image, mask: Image,struc_elem: list, struc_elem_center: tuple) -> Image:
+def geodesic_dilation(marker: Image, mask: Image, struc_elem: list, struc_elem_center: tuple) -> Image:
     marker = marker.copy()
     mask = mask.copy()
     marker = tresholding(marker, 128)
@@ -251,13 +252,7 @@ def geodesic_dilation(marker: Image, mask: Image,struc_elem: list, struc_elem_ce
         mask = mask.convert('L')
     result_image = dilation(marker, struc_elem, struc_elem_center)
     result_image = intersection(result_image, mask)
-    i = 0
-    while result_image != marker:
-        i += 1
-        marker = result_image
-        result_image = dilation(marker, struc_elem, struc_elem_center)
-        result_image = intersection(result_image, mask)
-    return difference(marker, mask)
+    return result_image
 
 
 def opening(image: Image, struc_elem: list, struc_elem_center: tuple, modify: bool = False) -> Image:
@@ -276,17 +271,19 @@ def closing(image: Image, struc_elem: list, struc_elem_center: tuple, modify: bo
     return image
 
 
-def fill_holes(image: Image, modify: bool = False) -> Image:
+def fill_holes(image: Image, struc_elem: list, struc_elem_center: tuple, modify: bool = False) -> Image:
     if not modify:
         image = image.copy()
-    
-    return image
+    image_complement = complement(image)
+    marker = Image.new('L', image.size)
+    result_image = complement_border(image)
+    while result_image != marker:
+        marker = result_image
+        result_image = geodesic_dilation(marker, image_complement, struc_elem, struc_elem_center)
+    return complement(result_image)
 
 
 def create_skeleton(image: Image, modify: bool = False) -> Image:
-    pass
-
-def reconstruct_image(skeleton: Image, modify: bool = False) -> Image:
     pass
 
 
