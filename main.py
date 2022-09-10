@@ -57,11 +57,11 @@ def questao_5():
     #     result = extract_region(image, (0, 255, 0, 255))
     #     result = complement(result)
     #     result = result.convert('L')
-    #     result = tresholding(result, 1)
+    #     result = thresholding(result, 1)
     #     image_bin = extract_region(image, (0, 255, 0, 255))
     #     image_bin = complement(image_bin)
     #     image_bin = image_bin.convert('L')
-    #     image_bin = tresholding(image_bin, 1)
+    #     image_bin = thresholding(image_bin, 1)
     #     mask = []
     #     for i in range(9):
     #         mask.append([])
@@ -78,11 +78,11 @@ def questao_5():
     #     result = extract_region(image, (255, 255, 0, 255))
     #     result = complement(result)
     #     result = result.convert('L')
-    #     result = tresholding(result, 1)
+    #     result = thresholding(result, 1)
     #     image_bin = extract_region(image, (255, 255, 0, 255))
     #     image_bin = complement(image_bin)
     #     image_bin = image_bin.convert('L')
-    #     image_bin = tresholding(image_bin, 1)
+    #     image_bin = thresholding(image_bin, 1)
     #     mask = []
     #     for i in range(9):
     #         mask.append([])
@@ -98,11 +98,11 @@ def questao_5():
     #     result = extract_region(image, (0, 0, 255, 255))
     #     result = complement(result)
     #     result = result.convert('L')
-    #     result = tresholding(result, 1)
+    #     result = thresholding(result, 1)
     #     image_bin = extract_region(image, (0, 0, 255, 255))
     #     image_bin = complement(image_bin)
     #     image_bin = image_bin.convert('L')
-    #     image_bin = tresholding(image_bin, 1)
+    #     image_bin = thresholding(image_bin, 1)
     #     mask = []
     #     for i in range(9):
     #         mask.append([])
@@ -114,62 +114,65 @@ def questao_5():
     #     result = result.convert('RGBA')
     #     result = color_region(result, (0, 0, 255, 255), (0, 0, 0, 255))
     #     result.save("results/questao_5/resultado_c_azul.png")
-    with Image.open("results/questao_5/resultado_b.png") as image:
-        green_region = Image.open("results/questao_5/resultado_c_verde.png")
-        result = extract_region(image, (0, 255, 0, 255))
-        result = difference(result, green_region)
-        result = complement(result)
-        green_region = extract_region(image, (0, 255, 0, 255))
-        image = complement(image)
-        result = complement(result)
-        result = addition(result, image)
-        result = complement(result)
-        image = result
 
-        yellow_region = Image.open("results/questao_5/resultado_c_amarelo.png")
-        result = extract_region(image, (255, 255, 0, 255))
-        result = difference(result, yellow_region)
-        result = complement(result)
-        yellow_region = extract_region(image, (255, 255, 0, 255))
-        image = complement(image)
-        result = complement(result)
-        result = addition(result, image)
-        result = complement(result)
-        image = result
+    # with Image.open("results/questao_5/resultado_b.png") as image:
+    #     green_region = Image.open("results/questao_5/resultado_c_verde.png")
+    #     result = extract_region(image, (0, 255, 0, 255))
+    #     result = difference(green_region, result, 'white')
+    #     green_region = extract_region(image, (0, 255, 0, 255))
+    #     result = addition(result, image, 'white')
+    #     image = result
 
-        blue_region = Image.open("results/questao_5/resultado_c_azul.png")
-        result = extract_region(image, (0, 0, 255, 255))
-        result = difference(result, blue_region)
-        result = complement(result)
-        blue_region = extract_region(image, (0, 0, 255, 255))
-        image = complement(image)
-        result = complement(result)
-        result = addition(result, image)
-        result = complement(result)
-        image = result
+    #     yellow_region = Image.open("results/questao_5/resultado_c_amarelo.png")
+    #     result = extract_region(image, (255, 255, 0, 255))
+    #     result = difference(yellow_region, result, 'white')
+    #     yellow_region = extract_region(image, (255, 255, 0, 255))
+    #     result = addition(result, image, 'white')
+    #     image = result
+
+    #     blue_region = Image.open("results/questao_5/resultado_c_azul.png")
+    #     result = extract_region(image, (0, 0, 255, 255))
+    #     result = difference(blue_region, result, 'white')
+    #     blue_region = extract_region(image, (0, 0, 255, 255))
+    #     result = addition(result, image, 'white')
+    #     image = result
 
 
-        mask = []
-        for i in range(21):
-            mask.append([])
-            for j in range(21):
-                mask[i].append(1)
-        red_region = extract_region(image, (255, 0, 0, 255))
-        red_region = complement(red_region)
-        red_region = tresholding(red_region, 1)
-        red_region = closing(red_region, mask, (10, 10))
-        red_region = complement(red_region)
-        red_region.show()
-        red_region = color_region(red_region, (255, 0, 0, 255), (0, 0, 0, 255))
-        red_region.show()
-
-        red_region = complement(red_region)
-        image = complement(image)
-        result = addition(red_region, image)
-        result = complement(result)
-        image = result
+    #     mask = []
+    #     for i in range(21):
+    #         mask.append([])
+    #         for j in range(21):
+    #             mask[i].append(1)
+    #     result = extract_region(image, (255, 0, 0, 255))
+    #     result = complement(result)
+    #     result = thresholding(result, 1)
+    #     result = closing(result, mask, (10, 10))
+    #     result = complement(result)
+    #     result = color_region(result, (255, 0, 0, 255), (0, 0, 0, 255))
+    #     result = addition(result, image, 'white')
+    #     image = result
         
-        image.save("results/questao_5/resultado_c_completo.png")
+    #     image.save("results/questao_5/resultado_c_completo.png")
+
+    with Image.open("results/questao_5/resultado_c_completo.png") as image:
+        mask = []
+        for i in range(9):
+            mask.append([])
+            for j in range(9):
+                mask[i].append(1)
+        result = complement(image)
+        result = result.convert('L')
+        result = thresholding(result, 1)
+        skeleton = create_skeleton(result, mask, (2, 2))
+        result = Image.new('L', (image.width, image.height))
+        for item in skeleton:
+            result = union(result, item)
+        result.save("results/questao_5/resultado_d.png")
+        result.show()
+        result = reconstruct_image(skeleton, mask, (2, 2))
+        result.show()
+        result.save("results/questao_5/resultado_d.png")
+        result.show()
 
 
 if __name__ == "__main__":

@@ -30,7 +30,6 @@ def color_region(image: Image, color: tuple, region_color: tuple) -> Image:
         result = Image.new('L', image.size)
         image = image.convert('L')
     original_image_matrix = image_to_matrix(image)
-    print(len(region_color), len(color))
     for line in range(image.size[0]):
         for column in range(image.size[1]):
             if original_image_matrix[line][column] == region_color:
