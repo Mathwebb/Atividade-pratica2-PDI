@@ -114,45 +114,46 @@ def addition(image1: Image, image2: Image, background:str) -> Image:
     if background == 'white':
         image1 = complement(image1)
         image2 = complement(image2)
+        result_image = Image.new(image1.mode, (image_width, image_height), (255,))
+    else:
+        result_image = Image.new(image1.mode, (image_width, image_height), (0,))
     if image1.width != image2.width and image1.height != image2.height:
         if image1.width < image2.width:
             image2 = image2.resize(image1.size)
-            image2 = thresholding(image2, 128)
             image_width = image1.width
             image_height = image1.height
         else:
             image1 = image1.resize(image2.size)
-            image1 = thresholding(image1, 128)
             image_width = image2.width
             image_height = image2.height
-
     if image1.mode != image2.mode:
         image2 = image2.copy()
         image2 = image2.convert(image1.mode)
     for line in range(image_width):
         for column in range(image_height):
             if image1.mode == 'L':
-                image1.putpixel((line, column), image1.getpixel((line, column)) + image2.getpixel((line, column)))
+                result_image.putpixel((line, column), image1.getpixel((line, column)) + image2.getpixel((line, column)))
             elif image1.mode == 'RGB':
-                image1_channels = ()
+                result_image_channels = ()
                 for i in range(len(image1.getpixel((line, column)))):
-                    image1_channels += (image1.getpixel((line, column))[i] + image2.getpixel((line, column))[i],)
-                image1.putpixel((line, column), image1_channels)
+                    result_image_channels += (image1.getpixel((line, column))[i] + image2.getpixel((line, column))[i],)
+                result_image.putpixel((line, column), result_image_channels)
             elif image1.mode == 'RGBA':
-                image1_channels = ()
+                result_image_channels = ()
                 for i in range(len(image1.getpixel((line, column)))):
                     if i == 3:
-                        image1_channels += (image1.getpixel((line, column))[i],)
+                        result_image_channels += (image1.getpixel((line, column))[i],)
                     else:
-                        image1_channels += (image1.getpixel((line, column))[i] + image2.getpixel((line, column))[i],)
-                image1.putpixel((line, column), image1_channels)
+                        result_image_channels += (image1.getpixel((line, column))[i] + image2.getpixel((line, column))[i],)
+                result_image.putpixel((line, column), result_image_channels)
     if background == 'white':
         image1 = complement(image1)
         image2 = complement(image2)
-    return image1
+        result_image = complement(result_image)
+    return result_image
 
 
-def difference(image1: Image, image2: Image, background:str) -> Image:
+def subtraction(image1: Image, image2: Image, background:str) -> Image:
     image_width = image1.width
     image_height = image1.height
     image1 = image1.copy()
@@ -160,19 +161,19 @@ def difference(image1: Image, image2: Image, background:str) -> Image:
     if background == 'white':
         image1 = complement(image1)
         image2 = complement(image2)
+        result_image = Image.new(image1.mode, (image_width, image_height), (255,))
+    else:
+        result_image = Image.new(image1.mode, (image_width, image_height), (0,))
     if image1.width != image2.width and image1.height != image2.height:
         if image1.width < image2.width:
             image2 = image2.resize(image1.size)
-            image2 = thresholding(image2, 128)
             image_width = image1.width
             image_height = image1.height
         else:
             image1 = image1.resize(image2.size)
-            image1 = thresholding(image1, 128)
             image_width = image2.width
             image_height = image2.height
 
-    result_image = Image.new(image1.mode, (image_width, image_height), (255,))
     image2 = image2.convert(image1.mode)
     for line in range(image_width):
         for column in range(image_height):
@@ -198,19 +199,52 @@ def difference(image1: Image, image2: Image, background:str) -> Image:
     return result_image
 
 
+def difference(image1: Image, image2: Image) -> Image:
+    image_width = image1.width
+    image_height = image1.height
+    image1 = image1.copy()
+    image2 = image2.copy()
+    if image1.mode != 'L':
+        image1 = image1.convert('L')
+    if image2.mode != 'L':
+        image2 = image2.convert('L')
+    image1 = thresholding(image1, 128)
+    image2 = thresholding(image2, 128)
+    if image1.width != image2.width and image1.height != image2.height:
+        if image1.width < image2.width:
+            image2 = image2.resize(image1.size)
+            image2 = thresholding(image2, 128)
+            image_width = image1.width
+            image_height = image1.height
+        else:
+            image1 = image1.resize(image2.size)
+            image1 = thresholding(image1, 128)
+            image_width = image2.width
+            image_height = image2.height
+      
+    result_image = Image.new('L', (image_width, image_height), (255,))
+    for line in range(image_width):
+        for column in range(image_height):
+                result_image.putpixel((line, column), image1.getpixel((line, column)) - image2.getpixel((line, column)))
+    return result_image
+
+
 def dilation(image: Image, struc_elem: list, struc_elem_center: tuple) -> Image:
     image = image.copy()
-    m1 = struc_elem_center[0]
-    m2 = len(struc_elem)-struc_elem_center[0]-1
-    n1 = struc_elem_center[1]
-    n2 = len(struc_elem[0])-struc_elem_center[1]-1
+    if image.mode != 'L':
+        image = image.convert('L')
+    image = thresholding(image, 128)
+    n1 = struc_elem_center[0]
+    n2 = len(struc_elem)-struc_elem_center[0]-1
+    m1 = struc_elem_center[1]
+    m2 = len(struc_elem[0])-struc_elem_center[1]-1
     original_image_matrix = image_to_matrix(image)
     for line in range(image.width):
         for column in range(image.height):
             if original_image_matrix[line][column] == 255:
                 for line_elem in range(-m1, m2+1):
                     for column_elem in range(-n1, n2+1):
-                        if struc_elem[m1+line_elem][n1+column_elem] == 1:
+                        if struc_elem[n1+column_elem][m1+line_elem] == 1:
                             try:
                                 image.putpixel((line+line_elem, column+column_elem), 255)
                             except IndexError:
@@ -220,10 +254,13 @@ def dilation(image: Image, struc_elem: list, struc_elem_center: tuple) -> Image:
 
 def erosion(image: Image, struc_elem: list, struc_elem_center: tuple) -> Image:
     image = image.copy()
-    m1 = struc_elem_center[0]
-    m2 = len(struc_elem)-struc_elem_center[0]-1
-    n1 = struc_elem_center[1]
-    n2 = len(struc_elem[0])-struc_elem_center[1]-1
+    if image.mode != 'L':
+        image = image.convert('L')
+    image = thresholding(image, 128)
+    n1 = struc_elem_center[0]
+    n2 = len(struc_elem)-struc_elem_center[0]-1
+    m1 = struc_elem_center[1]
+    m2 = len(struc_elem[0])-struc_elem_center[1]-1
     original_image_matrix = image_to_matrix(image)
     for line in range(image.width):
         for column in range(image.height):
@@ -232,7 +269,7 @@ def erosion(image: Image, struc_elem: list, struc_elem_center: tuple) -> Image:
                 for line_elem in range(-m1, m2+1):
                     for column_elem in range(-n1, n2+1):
                         try:
-                            if not (original_image_matrix[line+line_elem][column+column_elem] == 255 and struc_elem[m1+line_elem][n1+column_elem] == 1):
+                            if original_image_matrix[line+line_elem][column+column_elem] == 0 and struc_elem[n1+column_elem][m1+line_elem] == 1:
                                 struc_elem_hit = False
                                 break
                         except IndexError:
@@ -300,7 +337,7 @@ def create_skeleton(image: Image, struc_elem: list, struc_elem_center: tuple) ->
     result = image
     skeleton = []
     while result != empty_image:
-        result_difference = difference(result, opening(result, struc_elem, struc_elem_center), 'black')
+        result_difference = difference(result, opening(result, struc_elem, struc_elem_center))
         skeleton.append(result_difference)
         result = erosion(result, struc_elem, struc_elem_center)
     return skeleton
@@ -318,24 +355,3 @@ def reconstruct_image(skeleton: list, struc_elem: list, struc_elem_center: tuple
                 continue
             image = union(image, dilation(result, struc_elem, struc_elem_center))
     return image
-
-        
-
-
-if __name__ == "__main__":    
-    with Image.open("imgs/imagem_abertura.png") as image1:
-        image1 = image1.convert('L')
-        image1 = complement(image1)
-
-        result = opening(image1, [[1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1]], (1, 1))
-        result = complement(result)
-        result.save("results/questao_3/qPreto_tPreto_abertura.png")
-    
-    with Image.open("imgs/imagem_fechamento.png") as image1:
-        image1 = image1.convert('L')
-        image1 = complement(image1)
-
-        result = closing(image1, [[1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1]], (1, 1))
-        result = complement(result)
-        result.save("results/questao_3/qPreto_tPreto_fechamento.png")
-
