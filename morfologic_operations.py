@@ -346,12 +346,12 @@ def create_skeleton(image: Image, struc_elem: list, struc_elem_center: tuple) ->
 def reconstruct_image(skeleton: list, struc_elem: list, struc_elem_center: tuple) -> Image:
     skeleton = skeleton.copy()
     image = Image.new('L', skeleton[0].size)
+    result = Image.new('L', skeleton[0].size)
     for i in range(len(skeleton)):
-        for j in range(i):
-            if j == 0:
-                continue
+        image = union(image, result)
+        for j in range(1, i):
             if j == 1:
-                result  = union(image, dilation(skeleton[i], struc_elem, struc_elem_center))
+                result  = dilation(skeleton[i], struc_elem, struc_elem_center)
                 continue
-            image = union(image, dilation(result, struc_elem, struc_elem_center))
+            result = dilation(result, struc_elem, struc_elem_center)
     return image

@@ -122,15 +122,50 @@ def questao_5_d():
         result = complement(result)
         result = result.convert('L')
         result = thresholding(result, 1)
-        skeleton = create_skeleton(result, mask, (2, 2))
+        skeleton = create_skeleton(result, mask, (4, 4))
         result = Image.new('L', (image.width, image.height))
         for item in skeleton:
             result = union(result, item)
-        result.save("results/questao_5/resultado_d.png")
+        result = complement(result)
+        result = color_region(result, (0, 255, 0, 255), (0, 0, 0, 255))
+        result = color_region(result, (0, 0, 0, 255), (255, 255, 255, 255))
+        result.save("results/questao_5/resultado_d_verde.png")
         result.show()
-        result = reconstruct_image(skeleton, mask, (2, 2))
+        result = reconstruct_image(skeleton, mask, (4, 4))
         result.show()
-        result.save("results/questao_5/resultado_d.png")
+
+        
+        result = extract_region(image, (255, 255, 0, 255))
+        result = complement(result)
+        result = result.convert('L')
+        result = thresholding(result, 1)
+        skeleton = create_skeleton(result, mask, (4, 4))
+        result = Image.new('L', (image.width, image.height))
+        for item in skeleton:
+            result = union(result, item)
+        result = complement(result)
+        result = color_region(result, (255, 255, 0, 255), (0, 0, 0, 255))
+        result = color_region(result, (0, 0, 0, 255), (255, 255, 255, 255))
+        result.save("results/questao_5/resultado_d_amarelo.png")
+        result.show()
+        result = reconstruct_image(skeleton, mask, (4, 4))
+        result.show()
+
+        
+        result = extract_region(image, (0, 0, 255, 255))
+        result = complement(result)
+        result = result.convert('L')
+        result = thresholding(result, 1)
+        skeleton = create_skeleton(result, mask, (4, 4))
+        result = Image.new('L', (image.width, image.height))
+        for item in skeleton:
+            result = union(result, item)
+        result = complement(result)
+        result = color_region(result, (0, 0, 255, 255), (0, 0, 0, 255))
+        result = color_region(result, (0, 0, 0, 255), (255, 255, 255, 255))
+        result.save("results/questao_5/resultado_d_azul.png")
+        result.show()
+        result = reconstruct_image(skeleton, mask, (4, 4))
         result.show()
 
 
@@ -242,4 +277,4 @@ def questao_5():
 
 
 if __name__ == "__main__":
-    questao_5()
+    questao_5_d()
