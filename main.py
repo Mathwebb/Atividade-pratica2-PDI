@@ -1,6 +1,3 @@
-from lib2to3.pytree import convert
-from tarfile import ExtractError
-from turtle import color
 from spatial_filtering import *
 from morfologic_operations import *
 from diverse_operators import *
@@ -34,22 +31,22 @@ def questao_1():
 
 def questao_2():
     with Image.open("imgs/filtragem_espacial/lena_ruido.bmp") as image:
-        result = weighted_arithmetic_mean_filter(image, [[0, 1, 0], [1, 1, 1], [0, 1, 0]], (1, 1))
-        result.save("results/questao_2/lena_weighted_mean_filter_3x3_1s_cross.bmp")
-        result = weighted_arithmetic_mean_filter(image, [[1, 1, 1], [1, 1, 1], [1, 1, 1]], (1, 1))
-        result.save("results/questao_2/lena_arithmetic_mean_filter_3x3_1s_square.bmp")
-        result = weighted_arithmetic_mean_filter(image, [[1, 3, 1], [3, 16, 3], [1, 3, 1]], (1, 1))
-        result.save("results/questao_2/lena_weighted_mean_filter_3x3_square_16_center.bmp")
-        result = weighted_arithmetic_mean_filter(image, [[0, 1, 0], [1, 4, 1], [0, 1, 0]], (1, 1))
-        result.save("results/questao_2/lena_weighted_mean_filter_3x3_cross_4_center.bmp")
+        result = weighted_arithmetic_mean_filter(image, [[0, 1, 0], [1, 1, 1], [0, 1, 0]])
+        result.save("results/questao_2/lena_weighted_mean_filter_3x3_1s_cross.png")
+        result = weighted_arithmetic_mean_filter(image, [[1, 1, 1], [1, 1, 1], [1, 1, 1]])
+        result.save("results/questao_2/lena_arithmetic_mean_filter_3x3_1s_square.png")
+        result = weighted_arithmetic_mean_filter(image, [[1, 3, 1], [3, 16, 3], [1, 3, 1]])
+        result.save("results/questao_2/lena_weighted_mean_filter_3x3_square_16_center.png")
+        result = weighted_arithmetic_mean_filter(image, [[0, 1, 0], [1, 4, 1], [0, 1, 0]])
+        result.save("results/questao_2/lena_weighted_mean_filter_3x3_cross_4_center.png")
         result = median_filter(image, 3, 3)
-        result.save("results/questao_2/lena_median_filter_3x3_1_time.bmp")
+        result.save("results/questao_2/lena_median_filter_3x3_1_time.png")
         result = median_filter(result, 3, 3)
-        result.save("results/questao_2/lena_median_filter_3x3_2_times.bmp")
+        result.save("results/questao_2/lena_median_filter_3x3_2_times.png")
         result = median_filter(result, 3, 3)
-        result.save("results/questao_2/lena_median_filter_3x3_3_times.bmp")
+        result.save("results/questao_2/lena_median_filter_3x3_3_times.png")
         result = median_filter(result, 3, 3)
-        result.save("results/questao_2/lena_median_filter_3x3_4_times.bmp")
+        result.save("results/questao_2/lena_median_filter_3x3_4_times.png")
 
 
 
@@ -277,4 +274,4 @@ def questao_5():
 
 
 if __name__ == "__main__":
-    questao_5_d()
+    questao_2()

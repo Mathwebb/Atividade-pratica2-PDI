@@ -77,15 +77,15 @@ def median_filter(image: Image, m: int, n: int, modify: bool = False) -> Image:
     n1 = floor(n/2)
     for line in range(image.width):
         for column in range(image.height):
-            central_pixel = []
+            image_pixels = []
             for mask_line in range(-m1, m1+1):
                 for mask_column in range(-n1, n1+1):
                     try:
-                        central_pixel.append(original_image_matrix[line+mask_line][column+mask_column])
+                        image_pixels.append(original_image_matrix[line+mask_line][column+mask_column])
                     except IndexError:
                         pass
-            central_pixel.sort()
-            image.putpixel((line, column), central_pixel[len(central_pixel)//2])
+            image_pixels.sort()
+            image.putpixel((line, column), image_pixels[len(image_pixels)//2])
     return image
     
 
