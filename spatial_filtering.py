@@ -11,8 +11,8 @@ def image_to_matrix(image: Image) -> list:
     return image_matrix
 
 
-def matrix_to_image(matrix: list, image: Image) -> Image:
-    image = image.copy()
+def matrix_to_image(matrix: list) -> Image:
+    image = Image.new('L', (len(matrix), len(matrix[0])))
     for line in range(len(matrix)):
         for column in range(len(matrix[line])):
             image.putpixel((line, column), matrix[line][column])
@@ -146,7 +146,7 @@ def laplacian_filter(image: Image, center_value: int = -8, modify: bool = False,
                     else:
                         laplacian_image.putpixel((line, column), (pixel - 1) // 2 + 127)
     else:
-        laplacian_image = matrix_to_image(laplacian_image_matrix, image)
+        laplacian_image = matrix_to_image(laplacian_image_matrix)
     for line in range(image.width):
         for column in range(image.height):
             if center_value < 0:
@@ -191,7 +191,7 @@ def prewitt_border_detection(image: Image, horizontal: bool = True) -> Image:
     else:
         prewitt_mask = [[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]]
     prewitt_image = apply_linear_filter(image, prewitt_mask)
-    return matrix_to_image(prewitt_image, image)
+    return matrix_to_image(prewitt_image)
 
 
 
@@ -201,4 +201,4 @@ def sobel_border_detection(image: Image, horizontal: bool = True):
     else:
         sobel_mask = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]
     sobel_image = apply_linear_filter(image, sobel_mask)
-    return matrix_to_image(sobel_image, image)
+    return matrix_to_image(sobel_image)

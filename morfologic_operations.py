@@ -234,17 +234,17 @@ def dilation(image: Image, struc_elem: list, struc_elem_center: tuple) -> Image:
     if image.mode != 'L':
         image = image.convert('L')
     image = thresholding(image, 128)
-    n1 = struc_elem_center[0]
-    n2 = len(struc_elem)-struc_elem_center[0]-1
-    m1 = struc_elem_center[1]
-    m2 = len(struc_elem[0])-struc_elem_center[1]-1
+    m1 = struc_elem_center[0]
+    m2 = len(struc_elem)-struc_elem_center[0]-1
+    n1 = struc_elem_center[1]
+    n2 = len(struc_elem[0])-struc_elem_center[1]-1
     original_image_matrix = image_to_matrix(image)
     for line in range(image.width):
         for column in range(image.height):
             if original_image_matrix[line][column] == 255:
                 for line_elem in range(-m1, m2+1):
                     for column_elem in range(-n1, n2+1):
-                        if struc_elem[n1+column_elem][m1+line_elem] == 1:
+                        if struc_elem[m1+line_elem][n1+column_elem] == 1:
                             try:
                                 image.putpixel((line+line_elem, column+column_elem), 255)
                             except IndexError:
@@ -257,10 +257,10 @@ def erosion(image: Image, struc_elem: list, struc_elem_center: tuple) -> Image:
     if image.mode != 'L':
         image = image.convert('L')
     image = thresholding(image, 128)
-    n1 = struc_elem_center[0]
-    n2 = len(struc_elem)-struc_elem_center[0]-1
-    m1 = struc_elem_center[1]
-    m2 = len(struc_elem[0])-struc_elem_center[1]-1
+    m1 = struc_elem_center[0]
+    m2 = len(struc_elem)-struc_elem_center[0]-1
+    n1 = struc_elem_center[1]
+    n2 = len(struc_elem[0])-struc_elem_center[1]-1
     original_image_matrix = image_to_matrix(image)
     for line in range(image.width):
         for column in range(image.height):
@@ -269,7 +269,7 @@ def erosion(image: Image, struc_elem: list, struc_elem_center: tuple) -> Image:
                 for line_elem in range(-m1, m2+1):
                     for column_elem in range(-n1, n2+1):
                         try:
-                            if original_image_matrix[line+line_elem][column+column_elem] == 0 and struc_elem[n1+column_elem][m1+line_elem] == 1:
+                            if original_image_matrix[line+line_elem][column+column_elem] == 0 and struc_elem[m1+line_elem][n1+column_elem] == 1:
                                 struc_elem_hit = False
                                 break
                         except IndexError:
@@ -277,7 +277,7 @@ def erosion(image: Image, struc_elem: list, struc_elem_center: tuple) -> Image:
                     if not struc_elem_hit:
                         break
                 if not struc_elem_hit:
-                        image.putpixel((line, column), 0)
+                    image.putpixel((line, column), 0)
     return image
 
 
@@ -355,3 +355,17 @@ def reconstruct_image(skeleton: list, struc_elem: list, struc_elem_center: tuple
                 continue
             result = dilation(result, struc_elem, struc_elem_center)
     return image
+
+def hit_or_miss(image: Image, struc_elem_b1: list, struc_elem_b2: list, struc_elem_b1_center: tuple, struc_elem_b2_center: tuple) -> Image:
+    image = image.copy()
+    if image.mode != 'L':
+        image = image.convert('L')
+    image = thresholding(image, 128)
+    image_complement = image.copy()
+    image = complement(image)
+    image_b1 = erosion(image, struc_elem_b1, struc_elem_b1_center, False)
+    image_b1.show()
+    image_b2 = erosion(image_complement, struc_elem_b2, struc_elem_b2_center, True)
+    image_b2.show()
+    result_image = intersection(image_b1, image_b2)
+    return result_image
