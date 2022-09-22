@@ -1,4 +1,3 @@
-from spatial_filtering import *
 from morfologic_operations import *
 from diverse_operators import *
 
@@ -49,7 +48,6 @@ def questao_2():
         result.save("results/questao_2/lena_median_filter_3x3_4_times.png")
 
 
-
 def questao_3():
     with Image.open("imgs/operadores_morfologicos/triang_branco.png") as image1:
         with Image.open("imgs/operadores_morfologicos/losango_branco.png") as image2:
@@ -91,7 +89,8 @@ def questao_5_a():
     with Image.open("imgs/quadro.png") as image:
         result = extract_region(image, (0, 0, 0, 255))
         result = complement(result)
-        result = closing(result, [[1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1]], (2, 2))
+        result = closing(result, [[1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1]],
+                         (2, 2))
         result = complement(result)
         image = addition(image, result, 'white')
         image.save("results/questao_5/resultado_a.png")
@@ -131,7 +130,6 @@ def questao_5_d():
         result = reconstruct_image(skeleton, mask, (4, 4))
         result.show()
 
-        
         result = extract_region(image, (255, 255, 0, 255))
         result = complement(result)
         result = result.convert('L')
@@ -148,7 +146,6 @@ def questao_5_d():
         result = reconstruct_image(skeleton, mask, (4, 4))
         result.show()
 
-        
         result = extract_region(image, (0, 0, 255, 255))
         result = complement(result)
         result = result.convert('L')
@@ -186,7 +183,7 @@ def questao_5_f():
         image = image.convert('L')
         image = thresholding(image, 1)
         image.show()
-        result = erosion(image, struc_elem_b1, (3, 3), True)
+        result = erosion(image, struc_elem_b1, (3, 3))
         result.show()
 
     with Image.open("results/questao_5/resultado_c_completo.png") as image:
@@ -238,9 +235,9 @@ def questao_2_trabalho_extra():
                     else:
                         struc_elem[i][j] = 0
             result_erosion = erosion(result, struc_elem, (len(struc_elem)//2, len(struc_elem[0])//2))
-            result_erosion.save("results/questao_2_trabalho_extra/letra_a/erosao_imagem_B2.png")
+            result_erosion.save("results/trabalho_extra/questao2/letra_a/erosao_imagem_B2.png")
             result = difference(result, result_erosion)
-            result.save("results/questao_2_trabalho_extra/letra_a/diferenca_erosao_imagem_B2.png")
+            result.save("results/trabalho_extra/questao2/letra_a/diferenca_erosao_imagem_B2.png")
         with Image.open("imgs/es_B3.png") as struc_elem:
             struc_elem = thresholding(struc_elem, 1)
             struc_elem = image_to_matrix(struc_elem)
@@ -251,9 +248,9 @@ def questao_2_trabalho_extra():
                     else:
                         struc_elem[i][j] = 0
             result_dilation = dilation(result_erosion, struc_elem, (len(struc_elem)-1, len(struc_elem[0])-1))
-            result_dilation.save("results/questao_2_trabalho_extra/letra_a/dilatacao_imagem_B3.png")
+            result_dilation.save("results/trabalho_extra/questao2/letra_a/dilatacao_imagem_B3.png")
             result_dilation = difference(result_dilation, result_erosion)
-            result_dilation.save("results/questao_2_trabalho_extra/letra_a/diferenca_dilatacao_imagem_B3.png")
+            result_dilation.save("results/trabalho_extra/questao2/letra_a/diferenca_dilatacao_imagem_B3.png")
         result = image.copy()
         with Image.open("imgs/es_B1.png") as struc_elem:
             struc_elem = thresholding(struc_elem, 1)
@@ -265,9 +262,9 @@ def questao_2_trabalho_extra():
                     else:
                         struc_elem[i][j] = 0
             result_erosion = erosion(result, struc_elem, (len(struc_elem)//2, len(struc_elem[0])//2))
-            result_erosion.save("results/questao_2_trabalho_extra/letra_b/erosao_B1.png")
+            result_erosion.save("results/trabalho_extra/questao2/letra_b/erosao_B1.png")
             result = difference(result, result_erosion)
-            result.save("results/questao_2_trabalho_extra/letra_b/diferenca_erosao_B1.png")
+            result.save("results/trabalho_extra/questao2/letra_b/diferenca_erosao_B1.png")
         with Image.open("imgs/es_B2.png") as struc_elem:
             struc_elem = thresholding(struc_elem, 1)
             struc_elem = image_to_matrix(struc_elem)
@@ -278,10 +275,34 @@ def questao_2_trabalho_extra():
                     else:
                         struc_elem[i][j] = 0
             result_dilation = dilation(result_erosion, struc_elem, (len(struc_elem)//2, len(struc_elem[0])//2))
-            result_dilation.save("results/questao_2_trabalho_extra/letra_b/dilatacao_B2.png")
+            result_dilation.save("results/trabalho_extra/questao2/letra_b/dilatacao_B2.png")
             result_dilation = difference(result_dilation, result_erosion)
-            result_dilation.save("results/questao_2_trabalho_extra/letra_b/diferenca_dilatacao_B2.png")
+            result_dilation.save("results/trabalho_extra/questao2/letra_b/diferenca_dilatacao_B2.png")
 
+
+def questao_3_trabalho_extra():
+    # with Image.open("imgs/questao_3_trabalho_extra.png") as image:
+    #     image = thresholding(image, 1)
+    #     with Image.open("imgs/es_questao_3.png") as struc_elem:
+    #         result = Image.new("L", image.size, 0)
+    #         struc_elem = thresholding(struc_elem, 1)
+    #         struc_elem = image_to_matrix(struc_elem)
+    #         for i in range(len(struc_elem)):
+    #             for j in range(len(struc_elem[i])):
+    #                 if struc_elem[i][j] == 255:
+    #                     struc_elem[i][j] = 1
+    #                 else:
+    #                     struc_elem[i][j] = 0
+    #         skeleton = create_skeleton(image, [[1, 1, 1], [1, 1, 1], [1, 1, 1]], (1, 1))
+    #         for item in skeleton:
+    #             result = union(result, item)
+    #     result.save("results/trabalho_extra/questao_3/skeleton.png")
+
+    # with Image.open("imgs/questao_3_trabalho_extra.png") as image:
+    #     image = complement(image)
+    #     image = thresholding(image, 1)
+    #     image.save("imgs/questao_3_trabalho_extra.png")
+    create_skeleton_opencv("imgs/questao_3_trabalho_extra.png")
 
 
 def questao_5():
@@ -351,24 +372,20 @@ def questao_5():
         green_region = Image.open("results/questao_5/resultado_c_verde.png")
         result = extract_region(image, (0, 255, 0, 255))
         result = subtraction(green_region, result, 'white')
-        green_region = extract_region(image, (0, 255, 0, 255))
         result = addition(result, image, 'white')
         image = result
 
         yellow_region = Image.open("results/questao_5/resultado_c_amarelo.png")
         result = extract_region(image, (255, 255, 0, 255))
         result = subtraction(yellow_region, result, 'white')
-        yellow_region = extract_region(image, (255, 255, 0, 255))
         result = addition(result, image, 'white')
         image = result
 
         blue_region = Image.open("results/questao_5/resultado_c_azul.png")
         result = extract_region(image, (0, 0, 255, 255))
         result = subtraction(blue_region, result, 'white')
-        blue_region = extract_region(image, (0, 0, 255, 255))
         result = addition(result, image, 'white')
         image = result
-
 
         mask = []
         for i in range(21):
@@ -388,4 +405,4 @@ def questao_5():
 
 
 if __name__ == "__main__":
-    questao_2_trabalho_extra()
+    questao_3_trabalho_extra()
